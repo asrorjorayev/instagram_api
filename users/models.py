@@ -23,6 +23,7 @@ class User(AbstractUser):
     image=models.ImageField(upload_to='image/',null=True)
     auth_step=models.CharField(choices=AUTH_STEP,max_length=50,default=NEW)
     auth_type=models.CharField(choices=AUTH_TYPE,max_length=30)
+    
 
     def clean_username(self):
         if not self.username:
@@ -58,6 +59,8 @@ class User(AbstractUser):
             code=code,
             auth_type=auth_type
         )
+
+        
 class CodeVerifcation(models.Model):
     AUTH_TYPE=(
         (EMAIL,EMAIL),
@@ -68,6 +71,7 @@ class CodeVerifcation(models.Model):
     auth_type=models.CharField(max_length=50,choices=AUTH_TYPE)
     expire_time=models.DateTimeField()
     is_varification=models.BooleanField(default=False)
+    user=models.ForeignKey('User',on_delete=models.CASCADE,related_name='verefication')
 
     def save(self,*args,**kwargs):
         if self.auth_type==EMAIL:

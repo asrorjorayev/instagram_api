@@ -6,6 +6,8 @@ from .models import CodeVerifcation
 from datetime import datetime,timedelta
 from rest_framework.validators import ValidationError
 from .regex_check import is_valid_phone,is_valid_email
+from django.contrib.auth import authenticate
+
 
 class SignUpView(APIView):
     def post(self,request):
@@ -14,6 +16,29 @@ class SignUpView(APIView):
         serialazer.save()
 
         return Response(serialazer.data)
+
+
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(username=username, password=password)
+        
+        if not user:
+            raise ValidationError("Noto'g'ri nom yoki parol")
+        
+         
+        if user.is_authenticated:
+            data = {
+                "auth_status": user.auth_status,
+                "access_token": user.token()['access'],
+                "refresh_token": user.token()['refresh_token'],
+            }
+            return Response(data)
+         
+        raise ValidationError("Foydalanuvchi ro'yxatdan o'tmagan")
+
+
 
 class CodeVerifcationView(APIView):
     def post(self,request):
